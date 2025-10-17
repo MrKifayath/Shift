@@ -1,0 +1,82 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: pomodoro-postgres
+    environment:
+      POSTGRES_DB: pomodoro_app
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - pomodoro-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: pomodoro-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - pomodoro-network
+
+  # Uncomment these services when ready to use Docker
+  # backend:
+  #   build:
+  #     context: ./backend
+  #     dockerfile: Dockerfile.dev
+  #   container_name: pomodoro-backend
+  #   ports:
+  #     - "3001:3001"
+  #   environment:
+  #     NODE_ENV: development
+  #     DB_HOST: postgres
+  #     DB_PORT: 5432
+  #     DB_USERNAME: postgres
+  #     DB_PASSWORD: password
+  #     DB_NAME: pomodoro_app
+  #     REDIS_HOST: redis
+  #     REDIS_PORT: 6379
+  #     JWT_SECRET: your-super-secret-jwt-key-change-this-in-production
+  #     FRONTEND_URL: http://localhost:3000
+  #   volumes:
+  #     - ./backend:/app
+  #     - /app/node_modules
+  #   depends_on:
+  #     - postgres
+  #     - redis
+  #   networks:
+  #     - pomodoro-network
+  #   command: npm run start:dev
+
+  # frontend:
+  #   build:
+  #     context: ./frontend
+  #     dockerfile: Dockerfile.dev
+  #   container_name: pomodoro-frontend
+  #   ports:
+  #     - "3000:3000"
+  #   environment:
+  #     NEXT_PUBLIC_API_URL: http://localhost:3001
+  #   volumes:
+  #     - ./frontend:/app
+  #     - /app/node_modules
+  #     - /app/.next
+  #   depends_on:
+  #     - backend
+  #   networks:
+  #     - pomodoro-network
+  #   command: npm run dev
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  pomodoro-network:
+    driver: bridge
